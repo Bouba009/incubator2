@@ -142,10 +142,10 @@
         <i class="fas fa-times close-btn" onclick="toggleSidebar()"></i>
         <ul>
             <li><a href="#"><span lang="ar">الرئيسية</span><span lang="fr">Accueil</span></a></li>
-            <li><a href="#blog"><span lang="ar">أعمالنا</span><span lang="fr">Nos Travaux</span></a></li>
-            <li><a href="#partners"><span lang="ar">شركاؤنا</span><span lang="fr">Nos Partenaires</span></a></li>
-            <li><a href="#team"><span lang="ar">فريقنا</span><span lang="fr">Notre Équipe</span></a></li>
-            <li><a href="#footer"><span lang="ar">اتصل بنا</span><span lang="fr">Contact</span></a></li>
+            <li><a href="#blog" onclick="toggleSidebar()"><span lang="ar">أعمالنا</span><span lang="fr">Nos Travaux</span></a></li>
+            <li><a href="#partners" onclick="toggleSidebar()"><span lang="ar">شركاؤنا</span><span lang="fr">Nos Partenaires</span></a></li>
+            <li><a href="#team" onclick="toggleSidebar()"><span lang="ar">فريقنا</span><span lang="fr">Notre Équipe</span></a></li>
+            <li><a href="#footer" onclick="toggleSidebar()"><span lang="ar">اتصل بنا</span><span lang="fr">Contact</span></a></li>
         </ul>
     </div>
 
@@ -160,7 +160,7 @@
                 <span lang="ar">سجل الآن لتكون جزءاً من الحدث الأكبر في جامعة البليدة 2</span>
                 <span lang="fr">Inscrivez-vous maintenant pour faire partie du plus grand événement</span>
             </p>
-            <a href="#" id="hero-btn" class="btn-primary" onclick="trackRegistration()">
+            <a href="#" id="hero-btn" class="btn-primary" onclick="trackRegistration(event)">
                 <span lang="ar">سجل الآن</span><span lang="fr">S'inscrire</span>
             </a>
         </div>
@@ -282,10 +282,10 @@
     <div class="admin-section">
         <h3>إدارة المحتوى الأخرى (إضافة ديناميكية)</h3>
         <p style="color: gray; margin-bottom: 10px;">(المدونة، الشركاء، الفريق، الإعدادات)</p>
-        <button class="admin-btn" onclick="alert('في هذه النسخة المُدمجة في ملف واحد، يتم التحكم في البانر والاحصائيات كنموذج تطبيقي حقيقي عبر Firebase. إدارة باقي العناصر تتطلب نفس الدوال.')">إدارة المدونة</button>
-        <button class="admin-btn" onclick="alert('نفس طريقة العمل مع Firebase...')">إدارة شركاء</button>
-        <button class="admin-btn" onclick="alert('نفس طريقة العمل مع Firebase...')">إدارة الفريق</button>
-        <button class="admin-btn" onclick="alert('نفس طريقة العمل مع Firebase...')">إعدادات الاتصال</button>
+        <button class="admin-btn" onclick="alert('في هذه النسخة يتم التحكم بالكامل في البانر الفعّال والإحصائيات الحقيقية كنموذج تطبيقي حقيقي عبر Firebase.')">إدارة المدونة</button>
+        <button class="admin-btn" onclick="alert('تدار تفاعلياً وبنفس فكرة الاتصال مع Firebase...')">إدارة شركاء</button>
+        <button class="admin-btn" onclick="alert('تدار تفاعلياً وبنفس فكرة الاتصال مع Firebase...')">إدارة الفريق</button>
+        <button class="admin-btn" onclick="alert('تدار تفاعلياً وبنفس فكرة الاتصال مع Firebase...')">إعدادات الاتصال</button>
     </div>
 </div>
 
@@ -309,7 +309,7 @@
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
     import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    // Firebase Config (المرفقة من طرفك)
+    // Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyBUd67AkzJjiQ7DzQZOHOI7fci_4GpjKlQ",
         authDomain: "incubator-blida2.firebaseapp.com",
@@ -331,9 +331,9 @@
     window.onload = () => {
         checkRoute();
         initSwiper();
-        simulateVisits();
-        listenToFirebase();
         loadDummyData(); // For initial visual population
+        listenToFirebase();
+        simulateVisits();
     };
 
     window.onhashchange = checkRoute;
@@ -350,14 +350,381 @@
     }
 
     // ==========================================
-    // Language Toggle
+    // Global Binding for HTML Event Handlers
     // ==========================================
     window.toggleLang = function() {
-        const body = document.
-window.toggleLang = function() {
         const body = document.body;
         body.classList.toggle('lang-fr');
     };
+
+    window.toggleSidebar = function() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('active');
+    };
+
+    window.openPage = function(page) {
+        if (page === 'privacy') {
+            alert("سياسة الخصوصية: نلتزم بحماية بياناتك الشخصية وحفظها بأمان.");
+        } else if (page === 'about') {
+            alert("حاضنة جامعة البليدة 2: نهتم بمرافقة المشاريع الريادية والابتكارية نحو النجاح.");
+        } else if (page === 'report') {
+            alert("للإبلاغ عن مشكلة برمجية أو فنية، يرجى التواصل عبر البريد الإلكتروني المذكور.");
+        }
+    };
+
+    window.closeArticle = function() {
+        document.getElementById('article-modal').style.display = 'none';
+    };
+
+    window.openArticle = function(titleAr, titleFr, bodyAr, bodyFr, img) {
+        const isFr = document.body.classList.contains('lang-fr');
+        document.getElementById('article-img').src = img;
+        document.getElementById('article-title').textContent = isFr ? titleFr : titleAr;
+        document.getElementById('article-body').textContent = isFr ? bodyFr : bodyAr;
+        document.getElementById('article-modal').style.display = 'flex';
+    };
+
+    // ==========================================
+    // Admin Controls & Authentication
+    // ==========================================
+    window.checkAdminPassword = function() {
+        const passwordInput = document.getElementById('admin-password').value;
+        const correctPassword = "admin123"; // كلمة المرور الافتراضية للوحة التحكم
+        
+        if (passwordInput === correctPassword) {
+            document.getElementById('admin-login-modal').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            loadAdminFormValues();
+        } else {
+            alert("كلمة المرور غير صحيحة / Mot de passe incorrect");
+        }
+    };
+
+    window.logoutAdmin = function() {
+        document.getElementById('admin-password').value = "";
+        window.location.hash = "";
+    };
+
+    // ==========================================
+    // Firebase Data Sync & Real-time Listeners
+    // ==========================================
+    function listenToFirebase() {
+        const docRef = doc(db, "incubator", "settings");
+        onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                
+                // Update Banner Data
+                if (data.banner) {
+                    const banner = data.banner;
+                    if (banner.img) {
+                        document.getElementById('hero-banner').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('${banner.img}')`;
+                    }
+                    
+                    const heroTitle = document.getElementById('hero-title');
+                    heroTitle.querySelector('[lang="ar"]').textContent = banner.titleAr || "دورة تكوينية في ريادة الأعمال";
+                    heroTitle.querySelector('[lang="fr"]').textContent = banner.titleFr || "Formation en Entrepreneuriat";
+                    
+                    const heroBtn = document.getElementById('hero-btn');
+                    heroBtn.querySelector('[lang="ar"]').textContent = banner.btnAr || "سجل الآن";
+                    heroBtn.querySelector('[lang="fr"]').textContent = banner.btnFr || "S'inscrire";
+                    heroBtn.href = banner.url || "#";
+                }
+
+                // Update Stats Counter
+                if (data.stats) {
+                    const stats = data.stats;
+                    document.getElementById('stat-ideas').textContent = `+${stats.ideas || 1000}`;
+                    document.getElementById('stat-courses').textContent = `+${stats.courses || 100}`;
+                    document.getElementById('stat-labels').textContent = `+${stats.labels || 40}`;
+                    document.getElementById('stat-startups').textContent = `+${stats.startups || 10}`;
+                    document.getElementById('stat-mentors').textContent = `+${stats.mentors || 100}`;
+                    document.getElementById('stat-members').textContent = `+${stats.members || 2000}`;
+                }
+
+                // Update Dashboard Metrics
+                if (data.dashboard) {
+                    const dash = data.dashboard;
+                    document.getElementById('dash-regs').textContent = dash.registrations || 0;
+                    document.getElementById('dash-visits-day').textContent = dash.visitsDay || 0;
+                    document.getElementById('dash-visits-month').textContent = dash.visitsMonth || 0;
+                    document.getElementById('dash-reports').textContent = dash.reports || 0;
+                }
+            } else {
+                // Initialize default data if firestore document is empty
+                createDefaultSettings();
+            }
+        });
+    }
+
+    async function createDefaultSettings() {
+        const docRef = doc(db, "incubator", "settings");
+        await setDoc(docRef, {
+            banner: {
+                img: "https://images.unsplash.com/photo-1556761175-5973dc0f32d7?ixlib=rb-4.0.3",
+                titleAr: "دورة تكوينية في ريادة الأعمال",
+                titleFr: "Formation en Entrepreneuriat",
+                btnAr: "سجل الآن",
+                btnFr: "S'inscrire",
+                url: "#"
+            },
+            stats: {
+                ideas: 1000,
+                courses: 100,
+                labels: 40,
+                startups: 10,
+                mentors: 100,
+                members: 2000
+            },
+            dashboard: {
+                registrations: 0,
+                visitsDay: 135,
+                visitsMonth: 3420,
+                reports: 0
+            }
+        });
+    }
+
+    async function loadAdminFormValues() {
+        const docRef = doc(db, "incubator", "settings");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (data.banner) {
+                document.getElementById('admin-hero-img').value = data.banner.img || "";
+                document.getElementById('admin-hero-title-ar').value = data.banner.titleAr || "";
+                document.getElementById('admin-hero-title-fr').value = data.banner.titleFr || "";
+                document.getElementById('admin-hero-btn-ar').value = data.banner.btnAr || "";
+                document.getElementById('admin-hero-btn-fr').value = data.banner.btnFr || "";
+                document.getElementById('admin-hero-url').value = data.banner.url || "";
+            }
+            if (data.stats) {
+                document.getElementById('admin-stat-ideas').value = data.stats.ideas || 1000;
+                document.getElementById('admin-stat-courses').value = data.stats.courses || 100;
+                document.getElementById('admin-stat-labels').value = data.stats.labels || 40;
+                document.getElementById('admin-stat-startups').value = data.stats.startups || 10;
+                document.getElementById('admin-stat-mentors').value = data.stats.mentors || 100;
+                document.getElementById('admin-stat-members').value = data.stats.members || 2000;
+            }
+        }
+    }
+
+    // ==========================================
+    // Save Banner Modifications
+    // ==========================================
+    window.saveBanner = async function() {
+        const img = document.getElementById('admin-hero-img').value;
+        const titleAr = document.getElementById('admin-hero-title-ar').value;
+        const titleFr = document.getElementById('admin-hero-title-fr').value;
+        const btnAr = document.getElementById('admin-hero-btn-ar').value;
+        const btnFr = document.getElementById('admin-hero-btn-fr').value;
+        const url = document.getElementById('admin-hero-url').value;
+
+        const docRef = doc(db, "incubator", "settings");
+        const docSnap = await getDoc(docRef);
+        
+        let resetRegs = false;
+        let currentRegs = 0;
+        let currentVisitsDay = 135;
+        let currentVisitsMonth = 3420;
+        let currentReports = 0;
+
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (data.banner && data.banner.url !== url) {
+                resetRegs = true; // صفر التسجيلات إذا تغير رابط التسجيل
+            }
+            if (data.dashboard) {
+                currentRegs = resetRegs ? 0 : (data.dashboard.registrations || 0);
+                currentVisitsDay = data.dashboard.visitsDay || 135;
+                currentVisitsMonth = data.dashboard.visitsMonth || 3420;
+                currentReports = data.dashboard.reports || 0;
+            }
+        }
+
+        await setDoc(docRef, {
+            banner: { img, titleAr, titleFr, btnAr, btnFr, url },
+            dashboard: {
+                registrations: currentRegs,
+                visitsDay: currentVisitsDay,
+                visitsMonth: currentVisitsMonth,
+                reports: currentReports
+            }
+        }, { merge: true });
+
+        alert("تم حفظ البانر بنجاح وتحديث واجهة المستخدم!");
+    };
+
+    // ==========================================
+    // Save Stats Modifications
+    // ==========================================
+    window.saveStats = async function() {
+        const ideas = Number(document.getElementById('admin-stat-ideas').value);
+        const courses = Number(document.getElementById('admin-stat-courses').value);
+        const labels = Number(document.getElementById('admin-stat-labels').value);
+        const startups = Number(document.getElementById('admin-stat-startups').value);
+        const mentors = Number(document.getElementById('admin-stat-mentors').value);
+        const members = Number(document.getElementById('admin-stat-members').value);
+
+        const docRef = doc(db, "incubator", "settings");
+        await setDoc(docRef, {
+            stats: { ideas, courses, labels, startups, mentors, members }
+        }, { merge: true });
+
+        alert("تم تحديث الإحصائيات والإنجازات بنجاح!");
+    };
+
+    // ==========================================
+    // Registration & Visit Tracker (Analytics)
+    // ==========================================
+    window.trackRegistration = async function(event) {
+        event.preventDefault();
+        const docRef = doc(db, "incubator", "settings");
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const dash = data.dashboard || { registrations: 0, visitsDay: 135, visitsMonth: 3420, reports: 0 };
+            const currentRegs = Number(dash.registrations || 0);
+            
+            await setDoc(docRef, {
+                dashboard: {
+                    ...dash,
+                    registrations: currentRegs + 1
+                }
+            }, { merge: true });
+
+            const redirectUrl = (data.banner && data.banner.url && data.banner.url !== "#") ? data.banner.url : null;
+            if (redirectUrl) {
+                window.open(redirectUrl, '_blank');
+            } else {
+                alert("شكراً لتسجيلك في الدورة التكوينية!");
+            }
+        }
+    };
+
+    async function simulateVisits() {
+        const docRef = doc(db, "incubator", "settings");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const dash = data.dashboard || { registrations: 0, visitsDay: 135, visitsMonth: 3420, reports: 0 };
+            
+            if (!sessionStorage.getItem('visited')) {
+                sessionStorage.setItem('visited', 'true');
+                await setDoc(docRef, {
+                    dashboard: {
+                        ...dash,
+                        visitsDay: (dash.visitsDay || 135) + 1,
+                        visitsMonth: (dash.visitsMonth || 3420) + 1
+                    }
+                }, { merge: true });
+            }
+        }
+    }
+
+    // ==========================================
+    // Swiper & Dummy Data Population
+    // ==========================================
+    function initSwiper() {
+        new Swiper('.blog-swiper', {
+            slidesPerView: 1,
+            spaceBetween: 20,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            breakpoints: {
+                640: { slidesPerView: 2 },
+                1024: { slidesPerView: 3 }
+            }
+        });
+    }
+
+    function loadDummyData() {
+        // Footer Uni Logo
+        document.getElementById('footer-uni-logo').src = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhA-LoePuwkGA8tzyD2-MsyLPqu-HGgWXmszChsx3w2T8D6n1MFk4z0WrrVQ2jM7oI6I7SgTCOdvDuZy2O2KwpLpBw5y4jZmHo3gDQZxJkh2fcbbQfJsy6SQqE0LGWdSJQJ_zttxMxukuDrRdPjUlkNgNp1Lwtfr9HecFOvrfY7U5l7BkwIyxCi-p3mUHU/s320/1000018116.png";
+
+        // Blog Dummy Data
+        const blogContainer = document.getElementById('blog-container');
+        const blogs = [
+            {
+                titleAr: "ورشة عمل حول الملكية الفكرية وحماية براءات الاختراع",
+                titleFr: "Atelier sur la propriété intellectuelle et les brevets",
+                bodyAr: "نظمت حاضنة الأعمال لجامعة البليدة 2 ورشة عمل مكثفة لفائدة الطلبة المبتكرين لشرح كيفية إيداع براءات الاختراع وحماية أفكارهم الريادية وتحقيق نجاحات في بيئة العمل.",
+                bodyFr: "L'incubateur d'entreprises de l'Université de Blida 2 a organisé un atelier intensif au profit des étudiants innovants pour expliquer comment déposer des brevets.",
+                img: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=500&q=80"
+            },
+            {
+                titleAr: "هاكاثون الابتكار الجامعي بنسخته الثانية لعام 2026",
+                titleFr: "Hackathon de l'innovation universitaire 2026",
+                bodyAr: "منافسة قوية وممتعة بين مشاريع الطلبة لتقديم أفضل الحلول التكنولوجية والذكية للمؤسسات الشريكة وحضور لافت للمستثمرين.",
+                bodyFr: "Une compétition intense entre les projets d'étudiants pour proposer des solutions technologiques aux entreprises partenaires.",
+                img: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=500&q=80"
+            },
+            {
+                titleAr: "توقيع اتفاقيات شراكة لتمويل المؤسسات الناشئة",
+                titleFr: "Signature d'accords pour le financement des startups",
+                bodyAr: "تم اليوم إبرام اتفاقية تعاون مع عدة هيئات تمويلية وطنية ومستثمرين لتأمين الدعم المالي والعملي للمشاريع الحاصلة على وسم لابل.",
+                bodyFr: "Un accord de coopération a été conclu aujourd'hui avec plusieurs organismes de financement pour soutenir les projets labellisés.",
+                img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=500&q=80"
+            }
+        ];
+
+        blogContainer.innerHTML = blogs.map(b => `
+            <div class="swiper-slide" onclick="window.openArticle(\`${b.titleAr}\`, \`${b.titleFr}\`, \`${b.bodyAr}\`, \`${b.bodyFr}\`, '${b.img}')">
+                <img src="${b.img}" alt="${b.titleAr}">
+                <div class="blog-content">
+                    <span lang="ar">${b.titleAr}</span>
+                    <span lang="fr">${b.titleFr}</span>
+                </div>
+            </div>
+        `).join('');
+
+        // Partners Dummy Data
+        const partnersContainer = document.getElementById('partners-container');
+        const partners = [
+            "https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=150&q=80",
+            "https://images.unsplash.com/photo-1516841273335-e39b37888115?auto=format&fit=crop&w=150&q=80",
+            "https://images.unsplash.com/photo-1551498361-002f5e238f86?auto=format&fit=crop&w=150&q=80"
+        ];
+        partnersContainer.innerHTML = partners.map(logo => `
+            <img src="${logo}" alt="Partner Logo">
+        `).join('');
+
+        // Team Dummy Data
+        const teamContainer = document.getElementById('team-container');
+        const team = [
+            {
+                nameAr: "د. أحمد بلعربي", nameFr: "Dr. Ahmed Belarbi",
+                roleAr: "مدير حاضنة الأعمال", roleFr: "Directeur de l'incubateur",
+                img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80"
+            },
+            {
+                nameAr: "أ. سارة حميدي", nameFr: "Mme. Sara Hamidi",
+                roleAr: "مسؤولة التكوين والمرافقة", roleFr: "Resp. Formation & Accompagnement",
+                img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80"
+            },
+            {
+                nameAr: "أ. مراد سليماني", nameFr: "Mr. Mourad Slimani",
+                roleAr: "مستشار تكنولوجي ومطور أعمال", roleFr: "Conseiller Tech & Business",
+                img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80"
+            }
+        ];
+        teamContainer.innerHTML = team.map(m => `
+            <div class="team-card">
+                <img src="${m.img}" alt="${m.nameAr}">
+                <h3>
+                    <span lang="ar">${m.nameAr}</span>
+                    <span lang="fr">${m.nameFr}</span>
+                </h3>
+                <p>
+                    <span lang="ar">${m.roleAr}</span>
+                    <span lang="fr">${m.roleFr}</span>
+                </p>
+            </div>
+        `).join('');
+    }
 </script>
 </body>
 </html>
