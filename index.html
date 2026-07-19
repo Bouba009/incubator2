@@ -320,23 +320,27 @@
         measurementId: "G-H2RCS9PZ37"
     };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const db = getFirestore(app);
+    // Initialize Firebase smoothly with Try-Catch (to ensure Offline / Local file works)
+    let db;
+    let analytics;
+    try {
+        const app = initializeApp(firebaseConfig);
+        analytics = getAnalytics(app);
+        db = getFirestore(app);
+    } catch (e) {
+        console.warn("تنبيه: لم يتم الاتصال بقاعدة البيانات. إما أنك تقوم بالتشغيل محلياً دون سيرفر أو أنك أوفلاين. ومع ذلك، ستعمل كافة الخصائص التفاعلية للموقع ولوحة التحكم دون مشاكل.");
+    }
 
     // ==========================================
-    // UI & Routing Logic
+    // UI & Routing Logic (Runs Immediately on Load)
     // ==========================================
-    window.onload = () => {
-        checkRoute();
-        initSwiper();
-        loadDummyData(); // For initial visual population
-        listenToFirebase();
-        simulateVisits();
-    };
+    checkRoute();
+    initSwiper();
+    loadDummyData();
+    listenToFirebase();
+    simulateVisits();
 
-    window.onhashchange = checkRoute;
+    window.addEventListener('hashchange', checkRoute);
 
     function checkRoute() {
         if(window.location.hash === '#adminblida2') {
@@ -409,6 +413,7 @@
     // Firebase Data Sync & Real-time Listeners
     // ==========================================
     function listenToFirebase() {
+        if (!db) return; // Skip if database is offline or blocked locally
         const docRef = doc(db, "incubator", "settings");
         onSnapshot(docRef, (docSnap) => {
             if (docSnap.exists()) {
@@ -458,6 +463,7 @@
     }
 
     async function createDefaultSettings() {
+        if (!db) return;
         const docRef = doc(db, "incubator", "settings");
         await setDoc(docRef, {
             banner: {
@@ -486,6 +492,7 @@
     }
 
     async function loadAdminFormValues() {
+        if (!db) return;
         const docRef = doc(db, "incubator", "settings");
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
@@ -513,6 +520,10 @@
     // Save Banner Modifications
     // ==========================================
     window.saveBanner = async function() {
+        if (!db) {
+            alert("خطأ: أنت تعمل محلياً دون خادم (أوفلاين)، يرجى رفع الملف على استضافة لتفعيل الحفظ في Firebase.");
+            return;
+        }
         const img = document.getElementById('admin-hero-img').value;
         const titleAr = document.getElementById('admin-hero-title-ar').value;
         const titleFr = document.getElementById('admin-hero-title-fr').value;
@@ -559,6 +570,10 @@
     // Save Stats Modifications
     // ==========================================
     window.saveStats = async function() {
+        if (!db) {
+            alert("خطأ: أنت تعمل محلياً دون خادم (أوفلاين)، يرجى رفع الملف على استضافة لتفعيل الحفظ في Firebase.");
+            return;
+        }
         const ideas = Number(document.getElementById('admin-stat-ideas').value);
         const courses = Number(document.getElementById('admin-stat-courses').value);
         const labels = Number(document.getElementById('admin-stat-labels').value);
@@ -579,6 +594,10 @@
     // ==========================================
     window.trackRegistration = async function(event) {
         event.preventDefault();
+        if (!db) {
+            alert("أنت تتصفح أوفلاين/محلياً. سيتم توجيهك الآن.");
+            return;
+        }
         const docRef = doc(db, "incubator", "settings");
         const docSnap = await getDoc(docRef);
         
@@ -604,6 +623,7 @@
     };
 
     async function simulateVisits() {
+        if (!db) return;
         const docRef = doc(db, "incubator", "settings");
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
@@ -647,83 +667,89 @@
 
         // Blog Dummy Data
         const blogContainer = document.getElementById('blog-container');
-        const blogs = [
-            {
-                titleAr: "ورشة عمل حول الملكية الفكرية وحماية براءات الاختراع",
-                titleFr: "Atelier sur la propriété intellectuelle et les brevets",
-                bodyAr: "نظمت حاضنة الأعمال لجامعة البليدة 2 ورشة عمل مكثفة لفائدة الطلبة المبتكرين لشرح كيفية إيداع براءات الاختراع وحماية أفكارهم الريادية وتحقيق نجاحات في بيئة العمل.",
-                bodyFr: "L'incubateur d'entreprises de l'Université de Blida 2 a organisé un atelier intensif au profit des étudiants innovants pour expliquer comment déposer des brevets.",
-                img: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=500&q=80"
-            },
-            {
-                titleAr: "هاكاثون الابتكار الجامعي بنسخته الثانية لعام 2026",
-                titleFr: "Hackathon de l'innovation universitaire 2026",
-                bodyAr: "منافسة قوية وممتعة بين مشاريع الطلبة لتقديم أفضل الحلول التكنولوجية والذكية للمؤسسات الشريكة وحضور لافت للمستثمرين.",
-                bodyFr: "Une compétition intense entre les projets d'étudiants pour proposer des solutions technologiques aux entreprises partenaires.",
-                img: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=500&q=80"
-            },
-            {
-                titleAr: "توقيع اتفاقيات شراكة لتمويل المؤسسات الناشئة",
-                titleFr: "Signature d'accords pour le financement des startups",
-                bodyAr: "تم اليوم إبرام اتفاقية تعاون مع عدة هيئات تمويلية وطنية ومستثمرين لتأمين الدعم المالي والعملي للمشاريع الحاصلة على وسم لابل.",
-                bodyFr: "Un accord de coopération a été conclu aujourd'hui avec plusieurs organismes de financement pour soutenir les projets labellisés.",
-                img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=500&q=80"
-            }
-        ];
+        if (blogContainer) {
+            const blogs = [
+                {
+                    titleAr: "ورشة عمل حول الملكية الفكرية وحماية براءات الاختراع",
+                    titleFr: "Atelier sur la propriété intellectuelle et les brevets",
+                    bodyAr: "نظمت حاضنة الأعمال لجامعة البليدة 2 ورشة عمل مكثفة لفائدة الطلبة المبتكرين لشرح كيفية إيداع براءات الاختراع وحماية أفكارهم الريادية وتحقيق نجاحات في بيئة العمل.",
+                    bodyFr: "L'incubateur d'entreprises de l'Université de Blida 2 a organisé un atelier intensif au profit des étudiants innovants pour expliquer comment déposer des brevets.",
+                    img: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=500&q=80"
+                },
+                {
+                    titleAr: "هاكاثون الابتكار الجامعي بنسخته الثانية لعام 2026",
+                    titleFr: "Hackathon de l'innovation universitaire 2026",
+                    bodyAr: "منافسة قوية وممتعة بين مشاريع الطلبة لتقديم أفضل الحلول التكنولوجية والذكية للمؤسسات الشريكة وحضور لافت للمستثمرين.",
+                    bodyFr: "Une compétition intense entre les projets d'étudiants pour proposer des solutions technologiques aux entreprises partenaires.",
+                    img: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=500&q=80"
+                },
+                {
+                    titleAr: "توقيع اتفاقيات شراكة لتمويل المؤسسات الناشئة",
+                    titleFr: "Signature d'accords pour le financement des startups",
+                    bodyAr: "تم اليوم إبرام اتفاقية تعاون مع عدة هيئات تمويلية وطنية ومستثمرين لتأمين الدعم المالي والعملي للمشاريع الحاصلة على وسم لابل.",
+                    bodyFr: "Un accord de coopération a été conclu aujourd'hui avec plusieurs organismes de financement pour soutenir les projets labellisés.",
+                    img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=500&q=80"
+                }
+            ];
 
-        blogContainer.innerHTML = blogs.map(b => `
-            <div class="swiper-slide" onclick="window.openArticle(\`${b.titleAr}\`, \`${b.titleFr}\`, \`${b.bodyAr}\`, \`${b.bodyFr}\`, '${b.img}')">
-                <img src="${b.img}" alt="${b.titleAr}">
-                <div class="blog-content">
-                    <span lang="ar">${b.titleAr}</span>
-                    <span lang="fr">${b.titleFr}</span>
+            blogContainer.innerHTML = blogs.map(b => `
+                <div class="swiper-slide" onclick="window.openArticle(\`${b.titleAr}\`, \`${b.titleFr}\`, \`${b.bodyAr}\`, \`${b.bodyFr}\`, '${b.img}')">
+                    <img src="${b.img}" alt="${b.titleAr}">
+                    <div class="blog-content">
+                        <span lang="ar">${b.titleAr}</span>
+                        <span lang="fr">${b.titleFr}</span>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `).join('');
+        }
 
         // Partners Dummy Data
         const partnersContainer = document.getElementById('partners-container');
-        const partners = [
-            "https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=150&q=80",
-            "https://images.unsplash.com/photo-1516841273335-e39b37888115?auto=format&fit=crop&w=150&q=80",
-            "https://images.unsplash.com/photo-1551498361-002f5e238f86?auto=format&fit=crop&w=150&q=80"
-        ];
-        partnersContainer.innerHTML = partners.map(logo => `
-            <img src="${logo}" alt="Partner Logo">
-        `).join('');
+        if (partnersContainer) {
+            const partners = [
+                "https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=150&q=80",
+                "https://images.unsplash.com/photo-1516841273335-e39b37888115?auto=format&fit=crop&w=150&q=80",
+                "https://images.unsplash.com/photo-1551498361-002f5e238f86?auto=format&fit=crop&w=150&q=80"
+            ];
+            partnersContainer.innerHTML = partners.map(logo => `
+                <img src="${logo}" alt="Partner Logo">
+            `).join('');
+        }
 
         // Team Dummy Data
         const teamContainer = document.getElementById('team-container');
-        const team = [
-            {
-                nameAr: "د. أحمد بلعربي", nameFr: "Dr. Ahmed Belarbi",
-                roleAr: "مدير حاضنة الأعمال", roleFr: "Directeur de l'incubateur",
-                img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80"
-            },
-            {
-                nameAr: "أ. سارة حميدي", nameFr: "Mme. Sara Hamidi",
-                roleAr: "مسؤولة التكوين والمرافقة", roleFr: "Resp. Formation & Accompagnement",
-                img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80"
-            },
-            {
-                nameAr: "أ. مراد سليماني", nameFr: "Mr. Mourad Slimani",
-                roleAr: "مستشار تكنولوجي ومطور أعمال", roleFr: "Conseiller Tech & Business",
-                img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80"
-            }
-        ];
-        teamContainer.innerHTML = team.map(m => `
-            <div class="team-card">
-                <img src="${m.img}" alt="${m.nameAr}">
-                <h3>
-                    <span lang="ar">${m.nameAr}</span>
-                    <span lang="fr">${m.nameFr}</span>
-                </h3>
-                <p>
-                    <span lang="ar">${m.roleAr}</span>
-                    <span lang="fr">${m.roleFr}</span>
-                </p>
-            </div>
-        `).join('');
+        if (teamContainer) {
+            const team = [
+                {
+                    nameAr: "د. أحمد بلعربي", nameFr: "Dr. Ahmed Belarbi",
+                    roleAr: "مدير حاضنة الأعمال", roleFr: "Directeur de l'incubateur",
+                    img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80"
+                },
+                {
+                    nameAr: "أ. سارة حميدي", nameFr: "Mme. Sara Hamidi",
+                    roleAr: "مسؤولة التكوين والمرافقة", roleFr: "Resp. Formation & Accompagnement",
+                    img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80"
+                },
+                {
+                    nameAr: "أ. مراد سليماني", nameFr: "Mr. Mourad Slimani",
+                    roleAr: "مستشار تكنولوجي ومطور أعمال", roleFr: "Conseiller Tech & Business",
+                    img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80"
+                }
+            ];
+            teamContainer.innerHTML = team.map(m => `
+                <div class="team-card">
+                    <img src="${m.img}" alt="${m.nameAr}">
+                    <h3>
+                        <span lang="ar">${m.nameAr}</span>
+                        <span lang="fr">${m.nameFr}</span>
+                    </h3>
+                    <p>
+                        <span lang="ar">${m.roleAr}</span>
+                        <span lang="fr">${m.roleFr}</span>
+                    </p>
+                </div>
+            `).join('');
+        }
     }
 </script>
 </body>
